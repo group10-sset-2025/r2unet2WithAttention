@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Tumor Segmentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold mb-4 text-center">Brain Tumor Segmentation</h1>
+        <form id="uploadForm" enctype="multipart/form-data" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">FLAIR Image (.nii)</label>
+                <input type="file" name="flair" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">T1CE Image (.nii)</label>
+                <input type="file" name="t1ce" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">T2 Image (.nii)</label>
+                <input type="file" name="t2" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">Upload & Process</button>
+        </form>
+        <div id="result" class="mt-4 text-center hidden">
+            <p class="text-green-600 font-semibold">Segmentation Complete!</p>
+            <div class="mt-4">
+                <h2 class="text-lg font-semibold">Segmentation Overlay</h2>
+                <img id="segmentationImage" src="" alt="Segmentation Overlay" class="rounded-xl shadow-md mx-auto">
+            </div>
+            <div class="mt-4">
+                <h2 class="text-lg font-semibold">Aligned Image</h2>
+                <img id="alignedImage" src="" alt="Aligned Image" class="rounded-xl shadow-md mx-auto">
+            </div>
+            <a href="/" class="mt-6 inline-block bg-blue-500 text-white py-2 px-4 rounded-xl shadow hover:bg-blue-600 transition">Upload Another Image</a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                // Set the image sources
+                document.getElementById('segmentationImage').src = result.segmentation_image;
+                document.getElementById('alignedImage').src = result.aligned_image;
+                // Show the result section
+                document.getElementById('result').style.display = 'block';
+            } else {
+                alert('Error processing images. Please ensure you uploaded correct files.');
+            }
+        });
+    </script>
+</body>
+</html>
